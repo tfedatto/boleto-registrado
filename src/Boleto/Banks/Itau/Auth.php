@@ -9,6 +9,7 @@
 namespace Boleto\Banks\Itau;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
+use Ramsey\Uuid\Console\Exception;
 
 class Auth
 {
@@ -142,11 +143,11 @@ class Auth
             }
             return $response->getBody()->getContents();
 
+        }catch (RequestException $e){
+            echo $e->getMessage() . "\n";
+            echo $e->getRequest()->getMethod();
         }catch (Exception $e){
-            echo Psr7\str($e->getRequest());
-            if ($e->hasResponse()) {
-                echo Psr7\str($e->getResponse());
-            }
+            echo $e;
         }
     }
 }
