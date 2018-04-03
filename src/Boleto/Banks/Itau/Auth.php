@@ -13,15 +13,15 @@ use Symfony\Component\Cache\Simple\FilesystemCache;
 
 class Auth
 {
+    const PROD = 2;
+    const TESTE = 1;
     private $token;
     private $url;
     private $client_id;
     private $cliente_secret;
     private $environment;
     private $ttl;
-
     private $cache;
-
 
     public function __construct()
     {
@@ -141,15 +141,18 @@ class Auth
      * @return mixed
      */
     public function setConfig($config){
+
+        $url = 'https://oauth.itau.com.br/identity/connect/token';
+
+        if($config['tipo_ambiente'] == TESTE){
+            $url = 'https://autorizador-boletos.itau.com.br';
+        }
+
         $this->setEnvironment($config['tipo_ambiente'])
             ->setClienteSecret($config['client_secret'])
             ->setClientId($config['client_id']);
 
-        $url = 'https://oauth.itau.com.br/identity/connect/token';
 
-        if($config['tipo_ambiente'] == 2){
-            $url = 'https://autorizador-boletos.itau.com.br';
-        }
 
         $this->setUrl($url);
 
@@ -197,10 +200,10 @@ class Auth
 
             return self::getToken();
 
-        }catch (RequestException $e){
+        } catch (RequestException $e) {
             echo $e->getMessage() . "\n";
             echo $e->getRequest()->getMethod();
-        }catch (Exception $e){
+        } catch (Exception $e) {
             echo $e;
         }
     }

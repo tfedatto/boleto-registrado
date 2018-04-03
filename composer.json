@@ -11,7 +11,9 @@
     "minimum-stability": "dev",
     "require": {
         "guzzlehttp/guzzle": "^6.3@dev",
-        "symfony/cache": "3.4.x-dev"
+        "symfony/cache": "3.4.x-dev",
+        "symfony/validator": "3.4.x-dev",
+        "symfony/http-foundation": "3.4.x-dev"
     },
     "autoload": {
       "psr-4": {
