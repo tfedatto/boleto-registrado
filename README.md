@@ -1,0 +1,1 @@
+<a href="https://codeclimate.com/github/tfedatto/boleto-registrado/maintainability"><img src="https://api.codeclimate.com/v1/badges/3613182214fe0dd9b1cf/maintainability" /></a>

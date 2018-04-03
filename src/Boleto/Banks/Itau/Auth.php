@@ -192,9 +192,8 @@ class Auth
 
             $response = \GuzzleHttp\json_decode($response->getBody()->getContents(), true);
             $this->setToken($response['access_token'])
-                ->setTtl($response['expires_in']);
-
-            self::setCache();
+                ->setTtl($response['expires_in'])
+                ->setCache();
 
             return self::getToken();
 
