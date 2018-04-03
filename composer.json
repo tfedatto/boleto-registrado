@@ -10,7 +10,8 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "guzzlehttp/guzzle": "^6.3@dev"
+        "guzzlehttp/guzzle": "^6.3@dev",
+        "symfony/cache": "3.4.x-dev"
     },
     "autoload": {
       "psr-4": {

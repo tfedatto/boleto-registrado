@@ -9,7 +9,7 @@
 namespace Boleto\Banks\Itau;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
-use Ramsey\Uuid\Console\Exception;
+use Symfony\Component\Cache\Simple\FilesystemCache;
 
 class Auth
 {
@@ -18,11 +18,14 @@ class Auth
     private $client_id;
     private $cliente_secret;
     private $environment;
+    private $ttl;
+
+    private $cache;
 
 
     public function __construct()
     {
-
+        $this->cache = new FilesystemCache();
     }
 
     /**
@@ -35,6 +38,7 @@ class Auth
 
     /**
      * @param mixed $token
+     * @return mixed
      */
     public function setToken($token)
     {
@@ -52,6 +56,7 @@ class Auth
 
     /**
      * @param mixed $url
+     * @return mixed
      */
     public function setUrl($url)
     {
@@ -69,6 +74,7 @@ class Auth
 
     /**
      * @param mixed $client_id
+     * @return mixed
      */
     public function setClientId($client_id)
     {
@@ -86,6 +92,7 @@ class Auth
 
     /**
      * @param mixed $cliente_secret
+     * @return mixed
      */
     public function setClienteSecret($cliente_secret)
     {
@@ -103,6 +110,7 @@ class Auth
 
     /**
      * @param mixed $environment
+     * @return mixed
      */
     public function setEnvironment($environment)
     {
@@ -110,6 +118,28 @@ class Auth
         return $this;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getTtl()
+    {
+        return $this->ttl;
+    }
+
+    /**
+     * @param mixed $ttl
+     */
+    public function setTtl($ttl)
+    {
+        $this->ttl = $ttl;
+        return $this;
+    }
+
+
+    /**
+     * @param mixed $config
+     * @return mixed
+     */
     public function setConfig($config){
         $this->setEnvironment($config['tipo_ambiente'])
             ->setClienteSecret($config['client_secret'])
@@ -122,14 +152,32 @@ class Auth
         }
 
         $this->setUrl($url);
+
+        return $this;
     }
 
+    private function setCache(){
+        $this->cache->set('token', self::getToken(), self::getTtl());
+        return $this;
+    }
 
+    private function getCache(){
+        return $this->cache->get('token');
+    }
+
+    /**
+     * @return array
+     */
     public function requestToken(){
         try{
+
+            if(self::getCache()){
+                return self::getCache();
+            }
+
             $client = new Client();
 
-            $response = $client->request('POST', $this->getUrl(), [
+            $response = $client->post($this->getUrl(), [
                 'form_params' => [
                     'scope' => 'readonly',
                     'grant_type' => 'client_credentials',
@@ -141,7 +189,14 @@ class Auth
             if($response->getStatusCode() != 200){
                 throw new Exception('O Token não foi gerado!');
             }
-            return $response->getBody()->getContents();
+
+            $response = \GuzzleHttp\json_decode($response->getBody()->getContents(), true);
+            $this->setToken($response['access_token'])
+                ->setTtl($response['expires_in']);
+
+            self::setCache();
+
+            return self::getToken();
 
         }catch (RequestException $e){
             echo $e->getMessage() . "\n";
